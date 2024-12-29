@@ -16,6 +16,7 @@ A secure and transparent voting platform built with Next.js, TypeScript, and Blo
 Before you begin, ensure you have installed:
 - Git
 - Node Version Manager (nvm)
+- Yarn package manager
 
 ## Installation
 
@@ -35,13 +36,13 @@ sudo apt install build-essential
 
 3. Download and run the NVM installation script:
 ```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 ```
 
 4. Add these lines to your ~/.bashrc file:
 ```bash
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 ```
 
 5. Reload your terminal configuration:
@@ -55,6 +56,14 @@ source ~/.bashrc
 2. Run the installer (nvm-setup.exe)
 3. Open a new PowerShell or Command Prompt as Administrator
 
+### Installing Yarn
+
+After installing Node.js, install Yarn globally:
+
+```bash
+npm install -g yarn
+```
+
 ### Setting Up the Project
 
 1. Install Node.js v22.12.0:
@@ -65,23 +74,59 @@ nvm use 22.12.0
 
 2. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/StilinskiAnas/E-Voting.git
 cd blockchain-e-voting-system
 ```
 
 3. Install dependencies:
 ```bash
-npm install
+yarn install
 ```
 
-4. Create a `.env.local` file in the root directory:
+### Setting Up Tailwind CSS
+
+1. Install Tailwind CSS and its dependencies:
+```bash
+yarn add -D tailwindcss postcss autoprefixer
+```
+
+2. Generate Tailwind CSS and PostCSS configuration files:
+```bash
+npx tailwindcss init -p
+```
+
+3. Configure your template paths in `tailwind.config.js`:
+```javascript
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx}",
+    "./src/components/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+4. Add Tailwind directives to your `./src/styles/globals.css`:
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+### Running the Application
+
+1. Create a `.env.local` file in the root directory:
 ```bash
 cp .env.example .env.local
 ```
 
-5. Start the development server:
+2. Start the development server:
 ```bash
-npm run dev
+yarn dev
 ```
 
 The application will be available at `http://localhost:3000`
@@ -119,17 +164,19 @@ blockchain-e-voting-system/
 │   └── styles/
 │       └── globals.css
 ├── public/
+├── tailwind.config.js
+├── postcss.config.js
 ├── package.json
 └── README.md
 ```
 
 ## Available Scripts
 
-- `npm run dev` - Start the development server
-- `npm run build` - Build the application for production
-- `npm start` - Start the production server
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Run TypeScript compiler check
+- `yarn dev` - Start the development server
+- `yarn build` - Build the application for production
+- `yarn start` - Start the production server
+- `yarn lint` - Run ESLint
+- `yarn type-check` - Run TypeScript compiler check
 
 ## Contributing
 
