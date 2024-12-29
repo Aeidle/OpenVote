@@ -1,30 +1,52 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useRouter } from 'next/router';
+import { isMetaMaskInstalled } from '../../utils/metamask';
 
 const WalletConnect = () => {
-  const [isConnected, setIsConnected] = useState(false);
+  const { user, isAuthenticated, login, logout } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
-  const mockAddress = '0x1234...5678';
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleConnect = async () => {
     setIsLoading(true);
-    // Simulate connection delay
-    setTimeout(() => {
-      setIsConnected(true);
+    try {
+      await login();
+    } catch (error: any) {
+      console.error('Connection error:', error);
+      if (error.message.includes('not registered')) {
+        router.push('/signup');
+      }
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleDisconnect = () => {
-    setIsConnected(false);
+    logout();
   };
 
-  if (isConnected) {
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  // Don't render anything until after mounting to prevent hydration errors
+  if (!mounted) return null;
+
+  if (isAuthenticated && user) {
     return (
       <div className="flex items-center space-x-3">
-        <span className="text-sm bg-blue-700 px-3 py-1 rounded-full">
-          {mockAddress}
-        </span>
+        <div className="flex flex-col items-end">
+          <span className="text-sm font-medium">{user.name}</span>
+          <span className="text-xs text-blue-200">
+            {formatAddress(user.walletAddress)}
+          </span>
+        </div>
         <button
           onClick={handleDisconnect}
           className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -32,6 +54,19 @@ const WalletConnect = () => {
           Disconnect
         </button>
       </div>
+    );
+  }
+
+  if (!isMetaMaskInstalled()) {
+    return (
+      <a
+        href="https://metamask.io/download/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors"
+      >
+        Install MetaMask
+      </a>
     );
   }
 

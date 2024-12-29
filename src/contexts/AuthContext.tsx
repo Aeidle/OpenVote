@@ -6,31 +6,42 @@ import { connectWallet, signMessage } from '../utils/metamask';
 interface AuthContextType extends AuthState {
   login: () => Promise<void>;
   logout: () => void;
-  signup: (name: string, email: string, role: 'voter' | 'candidate') => Promise<void>;
+  signup: (name: string, email: string, role: 'voter' | 'candidate' | 'admin') => Promise<void>;
   checkRole: (allowedRoles: string[]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const INITIAL_STATE: AuthState = {
+  user: null,
+  isAuthenticated: false,
+  loading: true,
+  token: null,
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    isAuthenticated: false,
-    loading: true,
-    token: null,
-  });
+  const [authState, setAuthState] = useState<AuthState>(INITIAL_STATE);
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
     // Check for stored auth data on mount
     const storedAuth = localStorage.getItem('auth');
     if (storedAuth) {
-      const { user, token } = JSON.parse(storedAuth);
-      setAuthState({
-        user,
-        token,
-        isAuthenticated: true,
-        loading: false,
-      });
+      try {
+        const { user, token } = JSON.parse(storedAuth);
+        setAuthState({
+          user,
+          token,
+          isAuthenticated: true,
+          loading: false,
+        });
+      } catch (error) {
+        // If there's an error parsing the stored data, clear it
+        localStorage.removeItem('auth');
+        setAuthState(prev => ({ ...prev, loading: false }));
+      }
     } else {
       setAuthState(prev => ({ ...prev, loading: false }));
     }
@@ -48,7 +59,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Sign message to verify wallet ownership
-      const message = `Sign this message to login to E-Voting System\nNonce: ${Date.now()}`;
+      const nonce = Math.floor(Math.random() * 1000000).toString();
+      const message = `Sign this message to login to E-Voting System\nNonce: ${nonce}`;
       await signMessage(message, address);
 
       // Generate auth token (in real app, this would come from your backend)
@@ -69,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signup = async (name: string, email: string, role: 'voter' | 'candidate') => {
+  const signup = async (name: string, email: string, role: 'voter' | 'candidate' | 'admin') => {
     try {
       // Connect MetaMask
       const address = await connectWallet();
@@ -81,7 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Sign message to verify wallet ownership
-      const message = `Sign this message to register for E-Voting System\nNonce: ${Date.now()}`;
+      const nonce = Math.floor(Math.random() * 1000000).toString();
+      const message = `Sign this message to register for E-Voting System\nNonce: ${nonce}`;
       await signMessage(message, address);
 
       // Create new user (in real app, this would be handled by your backend/blockchain)
@@ -112,7 +125,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('auth');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth');
+    }
     setAuthState({
       user: null,
       token: null,
