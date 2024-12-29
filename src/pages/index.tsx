@@ -1,8 +1,35 @@
 import { useRouter } from 'next/router';
 import Layout from '@/components/Shared/Layout';
+import { useAuth } from '../contexts/AuthContext';
+import { useEffect } from 'react';
 
 export default function Home() {
   const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      switch (user.role) {
+        case 'admin':
+          router.push('/admin/dashboard');
+          break;
+        case 'voter':
+          router.push('/voter/dashboard');
+          break;
+        case 'candidate':
+          router.push('/candidate/dashboard');
+          break;
+      }
+    }
+  }, [isAuthenticated, user, router]);
+
+  const handlePortalClick = (type: 'admin' | 'voter') => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    } else {
+      router.push(`/${type}/dashboard`);
+    }
+  };
 
   return (
     <Layout>
@@ -22,7 +49,7 @@ export default function Home() {
             {/* Admin Section */}
             <div
               className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow cursor-pointer"
-              onClick={() => router.push('/admin')}
+              onClick={() => handlePortalClick('admin')}
             >
               <div className="mb-6">
                 <svg
@@ -67,7 +94,7 @@ export default function Home() {
             {/* Voter Section */}
             <div
               className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow cursor-pointer"
-              onClick={() => router.push('/voter')}
+              onClick={() => handlePortalClick('voter')}
             >
               <div className="mb-6">
                 <svg
