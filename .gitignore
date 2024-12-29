@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+postcss.config.js
+tailwind.config.js
+yarn.lock
+.idea/.gitignore
+.idea/blockchain-e-voting-system.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/inspectionProfiles/profiles_settings.xml
