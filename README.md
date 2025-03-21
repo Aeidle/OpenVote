@@ -74,7 +74,7 @@ nvm use 22.12.0
 
 2. Clone the repository:
 ```bash
-git clone https://github.com/StilinskiAnas/E-Voting.git
+git clone https://github.com/Aeidle/OpenVote.git
 cd blockchain-e-voting-system
 ```
 
