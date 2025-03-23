@@ -95,6 +95,12 @@ yarn add -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
 ```
 
+If the above command doesn't work directly, try the following:
+```bash
+yarn add tailwindcss@^1
+npx tailwindcss init -p
+```
+
 3. Configure your template paths in `tailwind.config.js`:
 ```javascript
 /** @type {import('tailwindcss').Config} */
